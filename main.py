@@ -707,7 +707,7 @@ def create_bidirectional_connection_counts(network_df):
     )
 
     # Save the bidirectional connection data
-    combined_df.to_csv("bidirectional_connections.csv", index=False)
+    # combined_df.to_csv("bidirectional_connections.csv", index=False)
     # print("\nBidirectional connection data saved to 'bidirectional_connections.csv'")
 
     return combined_df
@@ -1647,6 +1647,24 @@ def save_interactive_visualization(fig):
             if (!graphId) return;
             
             const graphDiv = document.getElementById(graphId);
+            
+            // Function to force-stop any animations
+            function stopAllAnimations() {{
+                isPlaying = false;
+                clearInterval(playInterval);
+                
+                // Stop any Plotly animations
+                if (graphDiv && graphDiv._transitioning) {{
+                    Plotly.animate(graphId, [years[currentYearIndex].toString()], {{
+                        mode: 'immediate',
+                        transition: {{ duration: 0 }},
+                        frame: {{ duration: 0 }}
+                    }});
+                }}
+            }}
+            
+            // Call stopAllAnimations after load to prevent auto-animation
+            setTimeout(stopAllAnimations, 100);
             
             // Function to update all UI elements to match current year
             function updateUIForYear(yearIndex) {{
