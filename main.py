@@ -444,6 +444,7 @@ def get_name_variations():
         "Richard T. Ely": "Richard Theodore Ely",
         "Rosika Schwimer": "Rosika Schwimmer",
         "Gandhi": "Mohandas Gandhi",
+        "E.S": "Eleanor Gates Starr",
     }
 
 
