@@ -5,7 +5,6 @@ import numpy as np
 import os
 import pandas as pd
 import plotly.graph_objects as go
-import spacy
 from sqlalchemy import create_engine
 import random
 import re
@@ -70,17 +69,17 @@ def clean_date(date_str):
 def clean_data(df):
     """Clean loaded data and print information."""
     # Check for nulls initially
-    # print("Initial shape:", df.shape)
-    # print("\nMissing values before cleaning:")
-    # print(df.isnull().sum())
+    print("Initial shape:", df.shape)
+    print("\nMissing values before cleaning:")
+    print(df.isnull().sum())
 
     # Remove rows with null values
     df = df.dropna(subset=["title", "tag_name", "date"])
 
     # Check for nulls after cleaning
-    # print("\nShape after removing null values:", df.shape)
-    # print("\nMissing values after removing nulls:")
-    # print(df.isnull().sum())
+    print("\nShape after removing null values:", df.shape)
+    print("\nMissing values after removing nulls:")
+    print(df.isnull().sum())
 
     # Extract years early and filter by range
     df["year"] = df["date"].apply(clean_date)
@@ -88,14 +87,14 @@ def clean_data(df):
     # Filter to 1901-1935 range before doing anything else
     original_count = len(df)
     df = df.dropna(subset=["year"])
-    # print(
-    #     f"Removed {original_count - len(df)} rows with missing or invalid years (outside 1901-1935)"
-    # )
+    print(
+        f"Removed {original_count - len(df)} rows with missing or invalid years (outside 1901-1935)"
+    )
 
     # Display sample titles
-    # print("\nSample of titles:")
-    # for i in range(min(10, len(df))):
-    # print(f"{i + 1}. {df.iloc[i]['title']}")
+    print("\nSample of titles:")
+    for i in range(min(10, len(df))):
+        print(f"{i + 1}. {df.iloc[i]['title']}")
 
     return df
 
@@ -109,58 +108,6 @@ def is_likely_person_name(name):
 
     # Names usually don't have more than 5 words
     if len(name.split()) > 5:
-        return False
-
-    # Names shouldn't contain certain keywords
-    non_person_keywords = [
-        "The",
-        "Report",
-        "Article",
-        "Speech",
-        "Statement",
-        "List",
-        "Comments",
-        "Address",
-        "Draft",
-        "Program",
-        "Resolution",
-        "Peace",
-        "Child",
-        "Labor",
-        "Social",
-        "Industrial",
-        "Education",
-        "House",
-        "Museum",
-        "College",
-        "University",
-        "Institute",
-        "Association",
-        "Committee",
-        "Conference",
-        "League",
-        "Department",
-        "Council",
-        "System",
-        "Public",
-        "National",
-        "International",
-        "Federal",
-        "Municipal",
-        "Settlement",
-        "Fellowship",
-        "Organization",
-        "Secretary to",
-        "Assistant to",
-        "Office of",
-        "Clerk of",
-        "Staff of",
-        "Secretary to Jane Addams",
-        "to Jane Addams",
-        "Jane Addams et al.",
-    ]
-
-    if any(keyword in name for keyword in non_person_keywords):
         return False
 
     return True
@@ -343,13 +290,13 @@ def extract_names_from_data(df):
         (df["senders"].apply(lambda x: len(x) == 0))
         & (df["receivers"].apply(lambda x: len(x) == 0))
     ]
-    # print(f"\nNumber of items with no extracted names: {len(empty_names)}")
+    print(f"\nNumber of items with no extracted names: {len(empty_names)}")
 
     # Sample these for inspection
-    # if len(empty_names) > 0:
-    #     print("\nSample of titles with no extracted names:")
-    #     for i in range(min(100, len(empty_names))):
-    #         print(f"{i + 1}. {empty_names.iloc[i]['title']}")
+    if len(empty_names) > 0:
+        print("\nSample of titles with no extracted names:")
+        for i in range(min(100, len(empty_names))):
+            print(f"{i + 1}. {empty_names.iloc[i]['title']}")
 
     return df
 
@@ -377,14 +324,14 @@ def analyze_network(df):
     empty_records = len(empty_names)
     empty_percentage = (empty_records / total_records) * 100
 
-    # print(f"Total unique people identified: {len(people_counts)}")
-    # print(
-    #     f"Records with no extracted names: {empty_records} out of {total_records} ({empty_percentage:.2f}%)"
-    # )
+    print(f"Total unique people identified: {len(people_counts)}")
+    print(
+        f"Records with no extracted names: {empty_records} out of {total_records} ({empty_percentage:.2f}%)"
+    )
 
-    # print("\nTop 50 people mentioned in the documents:")
-    # for person, count in top_people:
-    #     print(f"{person}: {count} mentions")
+    print("\nTop 50 people mentioned in the documents:")
+    for person, count in top_people:
+        print(f"{person}: {count} mentions")
 
     # Analyze senders and receivers separately
     all_senders = []
@@ -398,8 +345,8 @@ def analyze_network(df):
     senders_counts = Counter(all_senders)
     receivers_counts = Counter(all_receivers)
 
-    # print(f"\nUnique senders: {len(senders_counts)}")
-    # print(f"Unique receivers: {len(receivers_counts)}")
+    print(f"\nUnique senders: {len(senders_counts)}")
+    print(f"Unique receivers: {len(receivers_counts)}")
 
     # Plot distribution of top senders and receivers
     plt.figure(figsize=(12, 6))
@@ -415,10 +362,10 @@ def analyze_network(df):
     plt.title("Top 10 Receivers")
     plt.tight_layout()
 
-    # plt.savefig("sender_receiver_distribution.png")
-    # plt.close()
+    plt.savefig("sender_receiver_distribution.png")
+    plt.close()
 
-    # print("\nSender-Receiver distribution saved as 'sender_receiver_distribution.png'")
+    print("\nSender-Receiver distribution saved as 'sender_receiver_distribution.png'")
 
     return top_people
 
@@ -453,15 +400,15 @@ def create_network_dataset(df, top_people):
     network_df = pd.DataFrame(network_data)
 
     # Print network statistics
-    # print("\nNetwork statistics:")
-    # print(f"Number of connections: {len(network_df)}")
-    # print(f"Number of unique sources: {network_df['source'].nunique()}")
-    # print(f"Number of unique targets: {network_df['target'].nunique()}")
-    # print(f"Number of tags in connections: {network_df['tag'].nunique()}")
+    print("\nNetwork statistics:")
+    print(f"Number of connections: {len(network_df)}")
+    print(f"Number of unique sources: {network_df['source'].nunique()}")
+    print(f"Number of unique targets: {network_df['target'].nunique()}")
+    print(f"Number of tags in connections: {network_df['tag'].nunique()}")
 
     # Save the network data for visualization
-    # network_df.to_csv("network_data.csv", index=False)
-    # print("\nNetwork data saved to 'network_data.csv'")
+    network_df.to_csv("network_data.csv", index=False)
+    print("\nNetwork data saved to 'network_data.csv'")
 
     # Create a smaller dataset with only the main correspondents
     top_people_names = [person for person, _ in top_people[:20]]
@@ -471,8 +418,8 @@ def create_network_dataset(df, top_people):
     ]
 
     # Save the main network data
-    # main_network_df.to_csv("main_network_data.csv", index=False)
-    # print("Main network data with top correspondents saved to 'main_network_data.csv'")
+    main_network_df.to_csv("main_network_data.csv", index=False)
+    print("Main network data with top correspondents saved to 'main_network_data.csv'")
 
     return network_df
 
@@ -490,8 +437,10 @@ def get_name_variations():
         "S. Yarros": "Rachelle Slobodinsky Yarros",
         "Anna Marcet Haldeman": "Anna Marcet Haldeman-Julius",
         "Mary Sheepshanks": "Mary Ryott Sheepshanks",
+        "Jacobs and Rosa Manus": "Aletta Jacobs and Rosa Manus",
         "Anne Martin": "Anne Henrietta Martin",
         "Myra Reynolds Linn": "Myra Harriet Reynolds Linn",
+        "Nina E.": "Nina E. Allender",
         "Richard T. Ely": "Richard Theodore Ely",
         "Rosika Schwimer": "Rosika Schwimmer",
         "Gandhi": "Mohandas Gandhi",
@@ -499,14 +448,14 @@ def get_name_variations():
 
 
 def get_category_colors():
-    """Return category color mapping."""
+    """Return category color mapping with WCAG accessible colors."""
     return {
-        "Peace Work": "#4a6eac",  # Blue
-        "Social Reform": "#2ec394",  # Teal
-        "Political Activism": "#eb6672",  # Coral/pink
-        "Personal Relations": "#964b7d",  # Purple
-        "Academic Work": "#f39c12",  # Orange
-        "General Correspondence": "#95a5a6",  # Gray
+        "Peace Work": "#2050a1",
+        "Social Reform": "#0a7c5a",
+        "Political Activism": "#c12f3c",
+        "Personal Relations": "#6a2256",
+        "Academic Work": "#a85d00",
+        "General Correspondence": "#575a5c",
     }
 
 
@@ -707,8 +656,8 @@ def create_bidirectional_connection_counts(network_df):
     )
 
     # Save the bidirectional connection data
-    # combined_df.to_csv("bidirectional_connections.csv", index=False)
-    # print("\nBidirectional connection data saved to 'bidirectional_connections.csv'")
+    combined_df.to_csv("bidirectional_connections.csv", index=False)
+    print("\nBidirectional connection data saved to 'bidirectional_connections.csv'")
 
     return combined_df
 
@@ -809,7 +758,7 @@ def filter_jane_addams_network(network_df):
 
 
 def assign_categories(addams_network):
-    """Assign categories to people in the network."""
+    """Assign categories to people in the network with historical relationship context."""
     # Define category mapping based on the most common tags
     category_mapping = {
         # Social Reform category
@@ -859,6 +808,33 @@ def assign_categories(addams_network):
         ],
     }
 
+    # Define historical relationship weights based on Cathy's feedback
+    historical_relationships = {
+        # Personal Relations - family and close relationships
+        "Mary Rozet Smith": {"Personal Relations": 20.0},  # Her partner
+        "Sarah Alice Addams Haldeman": {"Personal Relations": 10.0},  # Her sister
+        "James Weber Linn": {"Personal Relations": 10.0},  # Her nephew
+        # Peace Work - people known to be central to peace movements
+        "Rosika Schwimmer": {"Peace Work": 10.0},
+        "Lola Maverick Lloyd": {"Peace Work": 10.0},
+        "Harriet Park Thomas": {"Peace Work": 10.0},
+        "Gertrud Baer": {"Peace Work": 10.0},
+        "Irma M. Tunas Tischer": {"Peace Work": 10.0},
+        "Dorothy Detzer": {"Peace Work": 10.0},
+        "Maria Matilda Widegren": {"Peace Work": 10.0},
+        "Tano Jodai": {"Peace Work": 10.0},
+        "Mildred Scott Olmsted": {"Peace Work": 10.0},
+        "Anne Zueblin": {"Peace Work": 10.0},
+        "Jeanette Rankin": {"Peace Work": 10.0},
+        "Emily Greene Balch": {"Peace Work": 10.0},
+        # Political Activism - political figures
+        "Robert Morss Lovett": {"Political Activism": 10.0},
+        "Theodore Roosevelt": {"Political Activism": 10.0},
+        "Woodrow Wilson": {"Political Activism": 20.0},
+        # Academic Work
+        "Richard Theodore Ely": {"Academic Work": 10.0},
+    }
+
     # Group by person and tag to find dominant themes
     person_tag_counts = (
         addams_network.groupby(["other_person", "tag"]).size().reset_index(name="count")
@@ -877,7 +853,13 @@ def assign_categories(addams_network):
         for tag in top_tags:
             for category, keywords in category_mapping.items():
                 if any(keyword.lower() in tag.lower() for keyword in keywords):
+                    # Base score from tag matching
                     category_scores[category] += 1
+
+        # Apply historical relationship weights if available
+        if person in historical_relationships:
+            for category, weight in historical_relationships[person].items():
+                category_scores[category] += weight
 
         # Assign to the category with the highest score
         if any(category_scores.values()):
@@ -890,16 +872,16 @@ def assign_categories(addams_network):
     addams_network["category"] = addams_network["other_person"].map(person_categories)
 
     # Print categories for top correspondents
-    # print("Category assignments for top correspondents:")
-    # for person in addams_network["other_person"].value_counts().head(20).index:
-    #     category = person_categories.get(person, "General Correspondence")
-    #     print(f"{person}: {category}")
+    print("Category assignments for top correspondents:")
+    for person in addams_network["other_person"].value_counts().head(20).index:
+        category = person_categories.get(person, "General Correspondence")
+        print(f"{person}: {category}")
 
     return addams_network
 
 
 def create_yearly_top_connections(addams_network):
-    """Create a dataset of top connections for each year."""
+    """Create a dataset of top connections for each year and print their categories."""
     name_variations = get_name_variations()
     non_person_entities = get_non_person_entities()
 
@@ -908,7 +890,7 @@ def create_yearly_top_connections(addams_network):
         int(addams_network["year"].min()), int(addams_network["year"].max()) + 1
     )
 
-    # print("\n===== Top 15 Connections with Jane Addams by Year =====\n")
+    print("\n===== Top 15 Connections with Jane Addams by Year =====\n")
 
     # Save the top 15 connections for each year in a CSV file
     top_connections_by_year = []
@@ -920,6 +902,23 @@ def create_yearly_top_connections(addams_network):
         )
 
         if top_people:
+            # Create a dictionary to store categories for each person
+            person_categories = {}
+
+            # Get categories for each person from the network data
+            for person in top_people:
+                # Find this person in the data for this year
+                person_data = addams_network[
+                    (addams_network["other_person"] == person)
+                    & (addams_network["year"] == year)
+                ]
+
+                if not person_data.empty and "category" in person_data.columns:
+                    person_categories[person] = person_data["category"].iloc[0]
+                else:
+                    person_categories[person] = "Unknown"
+
+            # Add data to the yearly connections dataset
             for person in top_people:
                 top_connections_by_year.append(
                     {
@@ -927,20 +926,24 @@ def create_yearly_top_connections(addams_network):
                         "source": "Jane Addams",
                         "target": person,
                         "count": person_counts[person],
+                        "category": person_categories.get(person, "Unknown"),
                     }
                 )
 
-            # print(f"Year {year} - Top connections with Jane Addams:")
-            # for person in top_people:
-            #     print(f"  Jane Addams ⟷ {person}: {person_counts[person]} interactions")
-            # print("")
+            print(f"Year {year} - Top connections with Jane Addams:")
+            for person in top_people:
+                category = person_categories.get(person, "Unknown")
+                print(
+                    f"  Jane Addams ⟷ {person}: {person_counts[person]} interactions (Category: {category})"
+                )
+            print("")
 
     # Convert to DataFrame
     top_connections_df = pd.DataFrame(top_connections_by_year)
 
     # Save the top connections to a CSV file
-    # top_connections_df.to_csv("top_connections_by_year.csv", index=False)
-    # print("\nTop connections by year saved to 'top_connections_by_year.csv'.")
+    top_connections_df.to_csv("top_connections_by_year.csv", index=False)
+    print("\nTop connections by year saved to 'top_connections_by_year.csv'.")
 
     return top_connections_df
 
@@ -989,7 +992,7 @@ def create_network_data(year, network_df):
         category_angles[category] = i * (2 * np.pi / len(category_people))
 
     # Position people with consistent edge lengths
-    uniform_distance = 1.0  # Consistent distance for all nodes from center
+    uniform_distance = 1.58  # Consistent distance for all nodes from center
 
     # Calculate number of nodes to position
     total_nodes = sum(len(people) for people in category_people.values())
@@ -1029,7 +1032,7 @@ def create_network_data(year, network_df):
             ]
 
     # After positioning all nodes, check for any that are too close to center
-    min_center_distance = 0.8  # Minimum acceptable distance from center
+    min_center_distance = 0.9  # Minimum acceptable distance from center
     for person in positions:
         if person != "Jane Addams":
             x, y = positions[person]
@@ -1078,28 +1081,35 @@ def create_network_data(year, network_df):
 
         x, y = positions[person]
         angle = np.arctan2(y, x)
+        name_length = len(person)
+        is_long_name = (
+            name_length > 15
+        )  # Names longer than 15 chars need special handling
 
-        # Use the correct Plotly text position values
-        if -np.pi / 8 <= angle < np.pi / 8:  # Right
-            text_positions[person] = "middle right"  # Keep as "middle right"
-        elif np.pi / 8 <= angle < 3 * np.pi / 8:  # Upper right
-            text_positions[person] = (
-                "top right"  # Changed from "bottom right" to bring text closer
-            )
-        elif 3 * np.pi / 8 <= angle < 5 * np.pi / 8:  # Top
-            text_positions[person] = "top center"  # Changed from "bottom center"
-        elif 5 * np.pi / 8 <= angle < 7 * np.pi / 8:  # Upper left
-            text_positions[person] = "top left"  # Changed from "bottom left"
-        elif 7 * np.pi / 8 <= angle or angle < -7 * np.pi / 8:  # Left
-            text_positions[person] = "middle left"  # Keep as "middle left"
-        elif -7 * np.pi / 8 <= angle < -5 * np.pi / 8:  # Lower left
-            text_positions[person] = (
-                "bottom left"  # Changed from "top left" to "bottom left"
-            )
-        elif -5 * np.pi / 8 <= angle < -3 * np.pi / 8:  # Bottom
-            text_positions[person] = "bottom center"  # Changed from "top center"
-        else:  # Lower right
-            text_positions[person] = "bottom right"  # Changed from "top right"
+        if is_long_name:
+            # Place long names above or below based on their position
+            if y > 0:  # Upper half of the circle
+                text_positions[person] = "top center"
+            else:  # Lower half of the circle
+                text_positions[person] = "bottom center"
+        else:
+            # For shorter names, use standard angle-based positioning
+            if -np.pi / 8 <= angle < np.pi / 8:  # Right
+                text_positions[person] = "middle right"
+            elif np.pi / 8 <= angle < 3 * np.pi / 8:  # Upper right
+                text_positions[person] = "top right"
+            elif 3 * np.pi / 8 <= angle < 5 * np.pi / 8:  # Top
+                text_positions[person] = "top center"
+            elif 5 * np.pi / 8 <= angle < 7 * np.pi / 8:  # Upper left
+                text_positions[person] = "top left"
+            elif 7 * np.pi / 8 <= angle or angle < -7 * np.pi / 8:  # Left
+                text_positions[person] = "middle left"
+            elif -7 * np.pi / 8 <= angle < -5 * np.pi / 8:  # Lower left
+                text_positions[person] = "bottom left"
+            elif -5 * np.pi / 8 <= angle < -3 * np.pi / 8:  # Bottom
+                text_positions[person] = "bottom center"
+            else:  # Lower right
+                text_positions[person] = "bottom right"
 
     # Get more details about each correspondence
     correspondence_details = {}
@@ -1253,7 +1263,7 @@ def create_interactive_visualization(data):
 
     # Convert to a sorted list for consistent ordering
     all_categories = sorted(list(all_categories))
-    # print(f"All possible categories across all years: {all_categories}")
+    print(f"All possible categories across all years: {all_categories}")
 
     # Create the initial figure with data from the first available year
     first_year = min(networks_by_year.keys())
@@ -1434,7 +1444,7 @@ def add_year_navigation(fig, years_list):
             "yanchor": "top",
             "font": {"color": "#23231b", "size": 24},
         },
-        font=dict(size=14),
+        font=dict(size=12),
         showlegend=True,
         legend=dict(
             title="Categories",
@@ -1442,7 +1452,7 @@ def add_year_navigation(fig, years_list):
             yanchor="top",
             x=0.99,
             y=0.99,
-            bgcolor="rgba(255, 255, 255, 0.8)",
+            bgcolor="rgba(255, 255, 255, 0.5)",
             font=dict(color="#23231b"),
         ),
         margin=dict(b=20, l=5, r=5, t=100),
@@ -1472,9 +1482,9 @@ def add_year_navigation(fig, years_list):
                 args=[
                     [str(int(year))],
                     dict(
-                        frame=dict(duration=800, redraw=True),
+                        frame=dict(duration=1600, redraw=True),
                         mode="immediate",
-                        transition=dict(duration=800),
+                        transition=dict(duration=1200),
                     ),
                 ],
                 label=str(int(year)),  # Show all year labels
@@ -1512,10 +1522,10 @@ def add_year_navigation(fig, years_list):
                     args=[
                         None,
                         dict(
-                            frame=dict(duration=500, redraw=True),
+                            frame=dict(duration=1600, redraw=True),
                             fromcurrent=True,
                             mode="immediate",
-                            transition=dict(duration=500),
+                            transition=dict(duration=1200),
                         ),
                     ],
                 ),
@@ -1601,7 +1611,7 @@ def save_interactive_visualization(fig):
             gap: 10px;
             z-index: 10000;
         }}
-        
+
         .year-nav-button {{
             position: relative;
             background-color: rgba(74, 110, 172, 0.9);
@@ -1617,9 +1627,9 @@ def save_interactive_visualization(fig):
             justify-content: center;
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }}
-        
+
         /* Target all possible slider elements */
-        .js-plotly-plot .slider-container *, 
+        .js-plotly-plot .slider-container *,
         .slider-container .slider-rect,
         .slider-container .slider-line,
         .slider-container .slider-thumb,
@@ -1636,23 +1646,23 @@ def save_interactive_visualization(fig):
             let isPlaying = false;
             let playInterval = null;
             const years = {years_js_array};
-            
+
             // Find the plotly graph container
             const plotlyContainer = document.querySelector('.plotly');
             if (!plotlyContainer) return;
-            
+
             // Get the ID of the plotly graph (the parent element)
             const graphElement = plotlyContainer.closest('[id]');
             const graphId = graphElement ? graphElement.id : null;
             if (!graphId) return;
-            
+
             const graphDiv = document.getElementById(graphId);
-            
-            // Function to force-stop any animations
+
+            // Function to force-stop any animations//hello
             function stopAllAnimations() {{
                 isPlaying = false;
                 clearInterval(playInterval);
-                
+
                 // Stop any Plotly animations
                 if (graphDiv && graphDiv._transitioning) {{
                     Plotly.animate(graphId, [years[currentYearIndex].toString()], {{
@@ -1662,24 +1672,24 @@ def save_interactive_visualization(fig):
                     }});
                 }}
             }}
-            
+
             // Call stopAllAnimations after load to prevent auto-animation
             setTimeout(stopAllAnimations, 100);
-            
+
             // Function to update all UI elements to match current year
             function updateUIForYear(yearIndex) {{
                 if (yearIndex < 0) yearIndex = 0;
                 if (yearIndex >= years.length) yearIndex = years.length - 1;
-                
+
                 currentYearIndex = yearIndex;
                 const year = years[currentYearIndex];
-                
+
                 // Animate to the selected year
                 Plotly.animate(graphId, [year.toString()], {{
-                    transition: {{ duration: 300 }},
-                    frame: {{ duration: 300 }}
+                    transition: {{ duration: 1200 }},
+                    frame: {{ duration: 1600 }}
                 }});
-                
+
                 // Update slider UI (this part is tricky with Plotly sliders)
                 try {{
                     // Find the slider element and update it
@@ -1688,19 +1698,19 @@ def save_interactive_visualization(fig):
                 }} catch (e) {{
                     console.log("Couldn't update slider UI directly");
                 }}
-                
+
                 // Update year display text
                 const yearDisplay = document.querySelector('.slider-current-value');
                 if (yearDisplay) {{
                     yearDisplay.textContent = 'Year: ' + year;
                 }}
             }}
-            
+
             // Play function - advances through years
             function playAnimation() {{
                 isPlaying = true;
                 clearInterval(playInterval); // Clear any existing interval
-                
+
                 playInterval = setInterval(() => {{
                     if (currentYearIndex >= years.length - 1) {{
                         // Loop back to beginning when reaching the end
@@ -1709,33 +1719,33 @@ def save_interactive_visualization(fig):
                         currentYearIndex++;
                     }}
                     updateUIForYear(currentYearIndex);
-                }}, 1000); // 1 second per year
+                }}, 1000); //
             }}
-            
+
             // Pause function
             function pauseAnimation() {{
                 isPlaying = false;
                 clearInterval(playInterval);
             }}
-            
+
             // Previous year function
             function previousYear() {{
                 pauseAnimation(); // Stop any running animation
                 updateUIForYear(currentYearIndex - 1);
             }}
-            
+
             // Next year function
             function nextYear() {{
                 pauseAnimation(); // Stop any running animation
                 updateUIForYear(currentYearIndex + 1);
             }}
-            
+
             // Watch for Plotly button clicks
             if (graphDiv) {{
                 graphDiv.on('plotly_buttonclicked', function(data) {{
                     if (data.menu && data.button) {{
                         const buttonLabel = data.button.label;
-                        
+
                         if (buttonLabel === '◀') {{  // Previous button
                             previousYear();
                         }} else if (buttonLabel === '▶') {{  // Next button
@@ -1747,7 +1757,7 @@ def save_interactive_visualization(fig):
                         }}
                     }}
                 }});
-                
+
                 // Watch for slider changes
                 graphDiv.on('plotly_sliderchange', function(data) {{
                     // Update current year index when slider changes
@@ -1757,7 +1767,7 @@ def save_interactive_visualization(fig):
                     }}
                 }});
             }}
-            
+
             // Find the current year from the slider to initialize
             const currentYearElement = document.querySelector('.slider-current-value');
             if (currentYearElement) {{
@@ -1769,14 +1779,14 @@ def save_interactive_visualization(fig):
                     if (currentYearIndex === -1) currentYearIndex = 0;
                 }}
             }}
-            
+
             // Set cursor styling for slider elements
             setTimeout(() => {{
                 const sliderElements = document.querySelectorAll('.slider-container .slider-rect, .slider-container .slider-line, .slider-container .slider-thumb');
                 sliderElements.forEach(element => {{
                     element.style.cursor = 'pointer';
                 }});
-                
+
                 // For the draggable handle
                 const sliderThumbs = document.querySelectorAll('.slider-container .slider-thumb');
                 sliderThumbs.forEach(thumb => {{
@@ -1808,9 +1818,6 @@ def main():
     """Main function integrating all parts of the analysis and visualization."""
     # === Part 1: Data Processing ===
     print("\n=== Starting Data Processing (Part 1) ===\n")
-
-    # Setup
-    nlp = spacy.load("en_core_web_sm")
 
     # Load data
     print("Loading data...")
@@ -1856,8 +1863,8 @@ def main():
     top_connections_df = create_yearly_top_connections(addams_network)
 
     # Save the categorized network for visualization
-    # addams_network.to_csv("jane_addams_categorized_network.csv", index=False)
-    # print("Categorized network saved to 'jane_addams_categorized_network.csv'")
+    addams_network.to_csv("jane_addams_categorized_network.csv", index=False)
+    print("Categorized network saved to 'jane_addams_categorized_network.csv'")
 
     # === Part 3: Visualization ===
     print("\n=== Starting Visualization Generation (Part 3) ===\n")
