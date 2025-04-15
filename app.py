@@ -444,7 +444,7 @@ def get_name_variations():
         "Richard T. Ely": "Richard Theodore Ely",
         "Rosika Schwimer": "Rosika Schwimmer",
         "Gandhi": "Mohandas Gandhi",
-        "E.S": "Eleanor Gates Starr",
+        "E.S": "Ellen Gates Starr",
     }
 
 
@@ -815,6 +815,7 @@ def assign_categories(addams_network):
         "Mary Rozet Smith": {"Personal Relations": 20.0},  # Her partner
         "Sarah Alice Addams Haldeman": {"Personal Relations": 10.0},  # Her sister
         "James Weber Linn": {"Personal Relations": 10.0},  # Her nephew
+        "Esther Margaret Linn Hulbert": {"Personal Relations": 10.0},  # Her niece
         # Peace Work - people known to be central to peace movements
         "Rosika Schwimmer": {"Peace Work": 10.0},
         "Lola Maverick Lloyd": {"Peace Work": 10.0},
