@@ -1603,6 +1603,13 @@ def save_interactive_visualization(fig):
     years_js_array = "[" + ",".join(map(str, years_list)) + "]"
     # Create additional HTML for the left/right navigation
     additional_html = f"""
+    <div style="position: absolute; top: 115px; left: 20px; max-width: 350px;
+    font-size: 12px; background: rgba(245, 245, 245, 0.9);
+    padding: 8px; z-index: 1000; word-wrap: break-word; font-family: sans-serif;">
+    <i style="color: #3A5683;">Node size represents total interactions between Jane Addams and each correspondent,
+    where interactions are calculated by counting all sender-receiver pairs
+    extracted from document titles.</i>
+    </div>
     <style>
         #button-container {{
             position: absolute;
